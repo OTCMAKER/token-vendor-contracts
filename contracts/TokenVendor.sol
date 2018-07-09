@@ -1,8 +1,9 @@
 pragma solidity ^0.4.23;
 
-import 'zeppelin-solidity/contracts/token/ERC20/ERC20.sol';
-import 'zeppelin-solidity/contracts/ownership/Ownable.sol';
-import 'zeppelin-solidity/contracts/math/SafeMath.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/ERC20.sol';
+import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
+import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
+import 'evolutionerc223/contracts/ERC223ReceivingContract.sol';
 
 contract TokenVendor is Ownable{
     using SafeMath for uint256;
@@ -27,6 +28,12 @@ contract TokenVendor is Ownable{
 
     }
 
+    function tokenFallback(address _from, uint256 _value, bytes _data) public{
+        require(msg.sender == address(token));
+
+        sellToken(_from, _value);
+    }
+
     function buyToken(address _th) public payable returns (bool) {
         require(_th != 0x0);
         require(msg.value > 0);
@@ -46,7 +53,7 @@ contract TokenVendor is Ownable{
 
         // TODO: Add statistics: totalNormalEtherCollected = totalNormalEtherCollected.add(_toFund);
 
-        NewBuy(_th, _toFund, tokensGenerating);
+        emit NewBuy(_th, _toFund, tokensGenerating);
           
         uint256 toReturn = msg.value.sub(_toFund);
         if (toReturn > 0) {
@@ -56,8 +63,32 @@ contract TokenVendor is Ownable{
         return true;
     }
 
-    function sellToken(address _th) public returns (bool) {
+    function sellToken(address _th, uint256 _value) public returns (bool) {
+        require(_th != 0x0);
+        require(_value > 0);
 
+        uint256 _toFund = _value;
+
+        uint256 ethGenerating = _toFund.div(sellTokenRate);
+
+        if (ethGenerating > address(this).balance) {
+            ethGenerating = address(this).balance;
+            _toFund = address(this).balance.mul(sellTokenRate);
+        }
+
+        _th.transfer(ethGenerating);
+
+        // TODO: Statistics.
+
+        emit NewSell(_th, _value, ethGenerating);
+
+        uint256 toReturn = _value.sub(_toFund);
+
+        if (toReturn > 0) {
+            require(token.transfer(_th, toReturn));
+        }
+
+        return true;
     }
 
     // Recommended OP: buyTokenRate will be changed once a day.
@@ -84,9 +115,9 @@ contract TokenVendor is Ownable{
             return;
         }
 
-        ERC20 token = ERC20(_token);
-        uint balance = token.balanceOf(this);
-        token.transfer(owner, balance);
+        ERC20 claimToken = ERC20(_token);
+        uint balance = claimToken.balanceOf(this);
+        claimToken.transfer(owner, balance);
 
         emit ClaimedTokens(_token, owner, balance);
     }
@@ -95,4 +126,6 @@ contract TokenVendor is Ownable{
     event ClaimedTokens(address indexed _token, address indexed _controller, uint _amount);
     event BuyRateChanged(uint256 previousBuyRate, uint256 newBuyRate);
     event SellRateChanged(uint256 previousSellRate, uint256 newSellRate);
+    event NewBuy(address indexed _th, uint256 _amount, uint256 _tokens);
+    event NewSell(address indexed _th, uint256 _amount, uint256 _weis);
 }
