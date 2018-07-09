@@ -1,0 +1,27 @@
+{
+  "name": "token-vendor-contracts",
+  "version": "1.0.0",
+  "description": "In Dapp verdor contracts providing liquidity for others exchange for tokens",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "evolutionerc223": "^1.0.0",
+    "openzeppelin-solidity": "^1.10.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OTCMAKER/token-vendor-contracts.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OTCMAKER/token-vendor-contracts/issues"
+  },
+  "homepage": "https://github.com/OTCMAKER/token-vendor-contracts#readme"
+}
