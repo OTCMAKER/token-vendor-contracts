@@ -14,6 +14,14 @@ contract TokenVendor is Ownable{
 
     uint256 public sellTokenRate;   // sellTokenRate = buyTokenRate * 11 /10
 
+    uint256 public totalBuyTokenTransfered;
+
+    uint256 public totalBuyEtherCollected;
+
+    uint256 public totalSellEthTransfered;
+
+    uint256 public totalSellTokenCollected;
+
     constructor(address _token) public {
         token = ERC20(_token);
         
@@ -49,9 +57,11 @@ contract TokenVendor is Ownable{
 
         require(token.transfer(_th, tokensGenerating));
 
-        // TODO: Add statistics: totalNormalTokenTransfered = totalNormalTokenTransfered.add(tokensGenerating);
+        // DONE: Add statistics:
+        totalBuyTokenTransfered = totalBuyTokenTransfered.add(tokensGenerating);
 
-        // TODO: Add statistics: totalNormalEtherCollected = totalNormalEtherCollected.add(_toFund);
+        // DONE: Add statistics:
+        totalBuyEtherCollected = totalBuyEtherCollected.add(_toFund);
 
         emit NewBuy(_th, _toFund, tokensGenerating);
           
@@ -78,7 +88,10 @@ contract TokenVendor is Ownable{
 
         _th.transfer(ethGenerating);
 
-        // TODO: Statistics.
+        // DONE: Statistics.
+        totalSellEthTransfered = totalSellEthTransfered.add(ethGenerating);
+
+        totalSellTokenCollected = totalSellTokenCollected.add(_toFund);
 
         emit NewSell(_th, _value, ethGenerating);
 
