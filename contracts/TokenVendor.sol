@@ -10,7 +10,7 @@ contract TokenVendor is Ownable{
 
     ERC20 public token;
 
-    uint256 public buyTokenRate;   // 1 ETH = 30000 RING.
+    uint256 public buyTokenRate;
 
     uint256 public sellTokenRate;   // sellTokenRate = buyTokenRate * 11 /10
 
